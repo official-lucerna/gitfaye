@@ -1,0 +1,914 @@
+<!DOCTYPE html>
+<html lang="en">
+
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>
+        <%= user.login %> / Repositories | GitFaye
+    </title>
+    <link rel="icon" href="/assets/img/logo.png" type="image/png">
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.0/css/all.min.css">
+    <style>
+        :root {
+            --bg-canvas: #0d1117;
+            --bg-subtle: #161b22;
+            --bg-overlay: #1d2128;
+            --border-default: #30363d;
+            --border-muted: #21262d;
+            --text-primary: #e6edf3;
+            --text-secondary: #8b949e;
+            --accent-fg: #58a6ff;
+            --success-fg: #3fb950;
+            --danger-fg: #f85149;
+            --warning-fg: #d29922;
+            --cyan: #1fd5ff;
+            --nav-h: 64px;
+        }
+
+        *,
+        *::before,
+        *::after {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
+
+        body {
+            background: var(--bg-canvas);
+            color: var(--text-primary);
+            font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", "Noto Sans", Helvetica, Arial, sans-serif;
+            font-size: 14px;
+            line-height: 1.5;
+            -webkit-font-smoothing: antialiased;
+        }
+
+        a {
+            color: inherit;
+            text-decoration: none;
+        }
+
+        .topnav {
+            height: var(--nav-h);
+            background: #010409;
+            border-bottom: 1px solid var(--border-default);
+            display: flex;
+            align-items: center;
+            gap: 16px;
+            padding: 0 32px;
+            position: sticky;
+            top: 0;
+            z-index: 200;
+        }
+
+        .topnav-brand {
+            display: flex;
+            align-items: center;
+            gap: 10px;
+            font-size: 1rem;
+            font-weight: 600;
+            color: var(--text-primary);
+        }
+
+        .topnav-brand i {
+            color: var(--cyan);
+            font-size: 1.25rem;
+        }
+
+        .topnav-search {
+            background: var(--bg-overlay);
+            border: 1px solid var(--border-default);
+            border-radius: 6px;
+            padding: 5px 12px;
+            color: var(--text-primary);
+            width: 220px;
+            font-size: 13px;
+            outline: none;
+            transition: border-color .15s, width .2s;
+        }
+
+        .topnav-search::placeholder {
+            color: var(--text-secondary);
+        }
+
+        .topnav-search:focus {
+            border-color: var(--accent-fg);
+            width: 280px;
+        }
+
+        .topnav-spacer {
+            flex: 1;
+        }
+
+        .topnav-right {
+            display: flex;
+            align-items: center;
+            gap: 16px;
+        }
+
+        .btn-defense {
+            background: #238636;
+            color: #ffffff !important;
+            border: 1px solid rgba(240, 246, 252, 0.1);
+            border-radius: 6px;
+            padding: 5px 12px;
+            font-size: 13px;
+            font-weight: 500;
+            display: flex;
+            align-items: center;
+            gap: 6px;
+            cursor: pointer;
+            transition: background .2s;
+        }
+
+        .btn-defense:hover {
+            background: #2ea043;
+        }
+
+        .btn-defense i {
+            color: #ffffff !important;
+            font-size: 14px;
+        }
+
+        .page-wrap {
+            max-width: 1280px;
+            margin: 0 auto;
+            padding: 24px 32px;
+            display: grid;
+            grid-template-columns: 296px 1fr;
+            gap: 32px;
+            align-items: start;
+        }
+
+        .sidebar-avatar {
+            width: 100%;
+            aspect-ratio: 1;
+            border-radius: 50%;
+            border: 1px solid var(--border-default);
+            overflow: hidden;
+            margin-bottom: 16px;
+        }
+
+        .sidebar-avatar img {
+            width: 100%;
+            height: 100%;
+            object-fit: cover;
+        }
+
+        .sidebar-name {
+            font-size: 1.5rem;
+            font-weight: 600;
+            line-height: 1.25;
+            margin-bottom: 4px;
+        }
+
+        .sidebar-login {
+            font-size: 1.25rem;
+            font-weight: 300;
+            color: var(--text-secondary);
+            margin-bottom: 16px;
+        }
+
+        .sidebar-bio {
+            font-size: 14px;
+            color: var(--text-primary);
+            margin-bottom: 16px;
+            line-height: 1.4;
+        }
+
+        .btn-follow {
+            display: block;
+            width: 100%;
+            text-align: center;
+            background: var(--bg-subtle);
+            border: 1px solid var(--border-default);
+            border-radius: 6px;
+            padding: 5px 12px;
+            font-size: 14px;
+            font-weight: 500;
+            cursor: pointer;
+            transition: background .15s, border-color .15s;
+            color: var(--text-primary);
+            margin-bottom: 16px;
+        }
+
+        .btn-follow:hover {
+            background: var(--bg-overlay);
+            border-color: var(--text-secondary);
+        }
+
+        .sidebar-meta {
+            list-style: none;
+            display: flex;
+            flex-direction: column;
+            gap: 8px;
+            margin-bottom: 16px;
+        }
+
+        .sidebar-meta li {
+            display: flex;
+            align-items: center;
+            gap: 8px;
+            font-size: 14px;
+            color: var(--text-secondary);
+        }
+
+        .sidebar-meta li i {
+            width: 16px;
+            text-align: center;
+        }
+
+        .sidebar-meta li a {
+            color: var(--text-secondary);
+        }
+
+        .sidebar-meta li a:hover {
+            color: var(--accent-fg);
+            text-decoration: underline;
+        }
+
+        .sidebar-social {
+            display: flex;
+            gap: 12px;
+            font-size: 16px;
+            color: var(--text-secondary);
+            margin-bottom: 16px;
+        }
+
+        .sidebar-social a:hover {
+            color: var(--text-primary);
+        }
+
+        .sidebar-stats {
+            display: flex;
+            gap: 16px;
+            font-size: 14px;
+            margin-bottom: 16px;
+        }
+
+        .sidebar-stat a {
+            color: var(--text-secondary);
+        }
+
+        .sidebar-stat a:hover {
+            color: var(--accent-fg);
+            text-decoration: underline;
+        }
+
+        .sidebar-stat span {
+            color: var(--text-primary);
+            font-weight: 600;
+            margin-right: 2px;
+        }
+
+        .sidebar-divider {
+            border: none;
+            border-top: 1px solid var(--border-muted);
+            margin: 16px 0;
+        }
+
+        .sidebar-section-title {
+            font-size: 14px;
+            font-weight: 600;
+            margin-bottom: 8px;
+        }
+
+        .badge-plan {
+            display: inline-flex;
+            align-items: center;
+            gap: 6px;
+            background: rgba(56, 139, 253, .15);
+            border: 1px solid rgba(56, 139, 253, .4);
+            border-radius: 20px;
+            padding: 2px 10px;
+            font-size: 12px;
+            color: var(--accent-fg);
+        }
+
+        .badge-2fa {
+            display: inline-flex;
+            align-items: center;
+            gap: 6px;
+            background: rgba(63, 185, 80, .1);
+            border: 1px solid rgba(63, 185, 80, .4);
+            border-radius: 20px;
+            padding: 2px 10px;
+            font-size: 12px;
+            color: var(--success-fg);
+            margin-top: 6px;
+        }
+
+        .main-tabs {
+            display: flex;
+            border-bottom: 1px solid var(--border-default);
+            margin-bottom: 24px;
+        }
+
+        .tab-item {
+            padding: 8px 16px;
+            font-size: 14px;
+            font-weight: 500;
+            color: var(--text-secondary);
+            cursor: pointer;
+            border-bottom: 2px solid transparent;
+            margin-bottom: -1px;
+            display: flex;
+            align-items: center;
+            gap: 6px;
+            transition: color .15s;
+        }
+
+        .tab-item:hover {
+            color: var(--text-primary);
+        }
+
+        .tab-item.active {
+            color: var(--text-primary);
+            border-bottom-color: #e36209;
+        }
+
+        .tab-count {
+            background: var(--border-default);
+            border-radius: 20px;
+            padding: 1px 7px;
+            font-size: 12px;
+            font-weight: 600;
+        }
+
+        .filter-bar {
+            display: flex;
+            gap: 8px;
+            margin-bottom: 16px;
+            flex-wrap: wrap;
+        }
+
+        .filter-input {
+            flex: 1;
+            min-width: 200px;
+            background: var(--bg-overlay);
+            border: 1px solid var(--border-default);
+            border-radius: 6px;
+            padding: 5px 12px;
+            color: var(--text-primary);
+            font-size: 13px;
+            outline: none;
+            transition: border-color .15s;
+        }
+
+        .filter-input::placeholder {
+            color: var(--text-secondary);
+        }
+
+        .filter-input:focus {
+            border-color: var(--accent-fg);
+        }
+
+        .filter-select {
+            background: var(--bg-overlay);
+            border: 1px solid var(--border-default);
+            border-radius: 6px;
+            padding: 5px 28px 5px 10px;
+            color: var(--text-primary);
+            font-size: 13px;
+            cursor: pointer;
+            outline: none;
+            appearance: none;
+            -webkit-appearance: none;
+            background-image: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='12' height='12' viewBox='0 0 24 24' fill='none' stroke='%238b949e' stroke-width='2'%3E%3Cpath d='M6 9l6 6 6-6'/%3E%3C/svg%3E");
+            background-repeat: no-repeat;
+            background-position: right 8px center;
+            transition: border-color .15s;
+        }
+
+        .filter-select:hover {
+            border-color: var(--text-secondary);
+        }
+
+        .filter-select option {
+            background: var(--bg-overlay);
+        }
+
+        .filter-btn {
+            background: var(--bg-subtle);
+            border: 1px solid var(--border-default);
+            border-radius: 6px;
+            padding: 5px 16px;
+            color: var(--text-primary);
+            font-size: 13px;
+            font-weight: 500;
+            cursor: pointer;
+            transition: background .15s, border-color .15s;
+        }
+
+        .filter-btn:hover {
+            background: var(--bg-overlay);
+            border-color: var(--text-secondary);
+        }
+
+        .repo-list {
+            list-style: none;
+        }
+
+        .repo-item {
+            padding: 24px 0;
+            border-bottom: 1px solid var(--border-muted);
+            display: grid;
+            grid-template-columns: 1fr auto;
+            gap: 16px;
+            align-items: start;
+        }
+
+        .repo-item:first-child {
+            border-top: 1px solid var(--border-muted);
+        }
+
+        .repo-item-name {
+            display: flex;
+            align-items: center;
+            gap: 8px;
+            margin-bottom: 4px;
+        }
+
+        .repo-item-name a {
+            font-size: 1rem;
+            font-weight: 600;
+            color: var(--accent-fg);
+        }
+
+        .repo-item-name a:hover {
+            text-decoration: underline;
+        }
+
+        .repo-badge {
+            font-size: 11px;
+            padding: 1px 7px;
+            border: 1px solid var(--border-default);
+            border-radius: 20px;
+            color: var(--text-secondary);
+        }
+
+        .repo-desc {
+            font-size: 14px;
+            color: var(--text-secondary);
+            margin-bottom: 8px;
+            max-width: 600px;
+        }
+
+        .repo-meta {
+            display: flex;
+            gap: 16px;
+            font-size: 12px;
+            color: var(--text-secondary);
+            align-items: center;
+            flex-wrap: wrap;
+        }
+
+        .repo-meta .lang-dot {
+            width: 12px;
+            height: 12px;
+            border-radius: 50%;
+            display: inline-block;
+            vertical-align: middle;
+            margin-right: 4px;
+        }
+
+        .repo-meta span {
+            display: flex;
+            align-items: center;
+            gap: 4px;
+        }
+
+        .repo-action {
+            display: flex;
+            flex-direction: column;
+            align-items: flex-start;
+            gap: 8px;
+        }
+
+        .btn-scan {
+            background: var(--bg-subtle);
+            border: 1px solid var(--border-default);
+            border-radius: 6px;
+            padding: 3px 12px;
+            color: var(--text-primary);
+            font-size: 12px;
+            font-weight: 500;
+            cursor: pointer;
+            display: flex;
+            align-items: center;
+            gap: 6px;
+            transition: background .15s, border-color .15s;
+            white-space: nowrap;
+        }
+
+        .btn-scan:hover {
+            background: var(--bg-overlay);
+            border-color: var(--text-secondary);
+        }
+
+        .pagination {
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            gap: 8px;
+            padding: 24px 0;
+        }
+
+        .page-btn {
+            background: var(--bg-subtle);
+            border: 1px solid var(--border-default);
+            border-radius: 6px;
+            padding: 5px 16px;
+            color: var(--text-primary);
+            font-size: 13px;
+            font-weight: 500;
+            cursor: pointer;
+            text-decoration: none;
+            display: flex;
+            align-items: center;
+            gap: 6px;
+            transition: background .15s, border-color .15s;
+        }
+
+        .page-btn:hover {
+            background: var(--bg-overlay);
+            border-color: var(--text-secondary);
+        }
+
+        .page-btn.disabled {
+            opacity: 0.4;
+            pointer-events: none;
+        }
+
+        .page-info {
+            font-size: 13px;
+            color: var(--text-secondary);
+            padding: 0 8px;
+        }
+
+        .empty-state {
+            text-align: center;
+            padding: 64px 24px;
+            color: var(--text-secondary);
+        }
+
+        .empty-state i {
+            font-size: 3rem;
+            margin-bottom: 16px;
+            opacity: 0.4;
+        }
+
+        .empty-state h3 {
+            font-size: 1.25rem;
+            color: var(--text-primary);
+            margin-bottom: 8px;
+        }
+
+        .lang-JavaScript {
+            background-color: #f1e05a;
+        }
+
+        .lang-TypeScript {
+            background-color: #3178c6;
+        }
+
+        .lang-Python {
+            background-color: #3572A5;
+        }
+
+        .lang-Shell {
+            background-color: #89e051;
+        }
+
+        .lang-HTML {
+            background-color: #e34c26;
+        }
+
+        .lang-CSS {
+            background-color: #563d7c;
+        }
+
+        .lang-Go {
+            background-color: #00ADD8;
+        }
+
+        .lang-Rust {
+            background-color: #dea584;
+        }
+
+        .lang-Java {
+            background-color: #b07219;
+        }
+
+        .lang-C {
+            background-color: #555555;
+        }
+
+        .lang-default {
+            background-color: #8b949e;
+        }
+
+        @media (max-width: 900px) {
+            .page-wrap {
+                grid-template-columns: 1fr;
+                padding: 16px;
+            }
+
+            .sidebar-avatar {
+                width: 48px;
+                height: 48px;
+            }
+
+            .filter-bar {
+                flex-direction: column;
+            }
+
+            .repo-item {
+                grid-template-columns: 1fr;
+            }
+        }
+    </style>
+</head>
+
+<body>
+
+    <nav class="topnav">
+        <a href="/" class="topnav-brand"><i class="fab fa-git-alt"></i> GitFaye</a>
+        <div class="topnav-spacer"></div>
+        <a href="/defense" class="btn-defense">
+            <i class="fas fa-shield-halved"></i> Defense
+        </a>
+    </nav>
+
+    <div class="page-wrap">
+
+        <aside>
+            <div class="sidebar-avatar">
+                <img src="<%= user.avatar_url %>" alt="<%= user.login %>">
+            </div>
+
+            <% if (user.name) { %>
+                <h1 class="sidebar-name">
+                    <%= user.name %>
+                </h1>
+                <% } %>
+                    <p class="sidebar-login">
+                        <%= user.login %>
+                    </p>
+
+                    <% if (user.bio) { %>
+                        <p class="sidebar-bio">
+                            <%= user.bio %>
+                        </p>
+                        <% } %>
+
+                            <div class="sidebar-stats">
+                                <div class="sidebar-stat">
+                                    <a
+                                        href="<%= user.followers_url.replace('https://api.github.com/users/'+user.login+'/', user.html_url+'/') %>">
+                                        <span>
+                                            <%= user.followers %>
+                                        </span>followers
+                                    </a>
+                                </div>
+                                <div class="sidebar-stat">
+                                    <a href="#">
+                                        <span>
+                                            <%= user.following %>
+                                        </span>following
+                                    </a>
+                                </div>
+                            </div>
+
+                            <ul class="sidebar-meta">
+                                <% if (user.company) { %>
+                                    <li><i class="fas fa-building"></i>
+                                        <%= user.company %>
+                                    </li>
+                                    <% } %>
+                                        <% if (user.location) { %>
+                                            <li><i class="fas fa-map-marker-alt"></i>
+                                                <%= user.location %>
+                                            </li>
+                                            <% } %>
+                                                <% if (user.email) { %>
+                                                    <li><i class="fas fa-envelope"></i> <a
+                                                            href="mailto:<%= user.email %>">
+                                                            <%= user.email %>
+                                                        </a></li>
+                                                    <% } %>
+                                                        <% if (user.blog) { %>
+                                                            <li><i class="fas fa-link"></i> <a href="<%= user.blog %>"
+                                                                    target="_blank">
+                                                                    <%= user.blog.replace(/^https?:\/\//, '' ) %>
+                                                                </a></li>
+                                                            <% } %>
+                                                                <% if (user.twitter_username) { %>
+                                                                    <li><i class="fab fa-twitter"></i> <a
+                                                                            href="https://twitter.com/<%= user.twitter_username %>"
+                                                                            target="_blank">@<%= user.twitter_username
+                                                                                %></a></li>
+                                                                    <% } %>
+                            </ul>
+
+                            <div class="sidebar-social">
+                                <a href="<%= user.html_url %>" target="_blank" title="GitHub"><i
+                                        class="fab fa-github"></i></a>
+                                <% if (user.twitter_username) { %>
+                                    <a href="https://twitter.com/<%= user.twitter_username %>" target="_blank"
+                                        title="Twitter"><i class="fab fa-twitter"></i></a>
+                                    <% } %>
+                                        <% if (user.blog) { %>
+                                            <a href="<%= user.blog %>" target="_blank" title="Website"><i
+                                                    class="fas fa-globe"></i></a>
+                                            <% } %>
+                            </div>
+
+                            <hr class="sidebar-divider">
+
+                            <% if (user.plan) { %>
+                                <p class="sidebar-section-title">Account</p>
+                                <div style="display:flex;flex-direction:column;gap:6px;">
+                                    <span class="badge-plan"><i class="fas fa-cube"></i> Plan: <%= user.plan?.name
+                                            || "Free" %></span>
+                                    <% if (user.two_factor_authentication) { %>
+                                        <span class="badge-2fa"><i class="fas fa-shield-alt"></i> 2FA Enabled</span>
+                                        <% } %>
+                                </div>
+                                <hr class="sidebar-divider">
+                                <% } %>
+
+                                    <% if (user.disk_usage) { %>
+                                        <p class="sidebar-section-title">Disk Usage</p>
+                                        <p style="font-size:13px;color:var(--text-secondary);">
+                                            <%= (user.disk_usage / 1024).toFixed(1) %> MB used
+                                        </p>
+                                        <% } %>
+        </aside>
+
+        <main>
+
+            <nav class="main-tabs" style="display: flex; align-items: center;">
+                <a class="tab-item" href="/<%= user.login %>">
+                    <i class="fas fa-book-open"></i> Overview
+                </a>
+                <div class="tab-item active">
+                    <i class="fas fa-book"></i> Repositories
+                    <span class="tab-count">
+                        <%= user.public_repos %>
+                    </span>
+                </div>
+                <div style="flex:1"></div>
+                <div style="display: flex; gap: 8px;">
+                    <a href="/<%= user.login %>/monitor-all" class="btn-defense"
+                        style="margin-bottom: 8px; background: transparent; border: 1px solid var(--border-default); color: var(--text-primary)!important;">
+                        <i class="fas fa-eye" style="color: var(--warning-fg)!important;"></i> Monitor All
+                    </a>
+                    <a href="/<%= user.login %>/scan-all" class="btn-defense"
+                        style="margin-bottom: 8px; background: transparent; border: 1px solid var(--border-default); color: var(--text-primary)!important;">
+                        <i class="fas fa-shield-virus" style="color: var(--accent-fg)!important;"></i> Scan All
+                    </a>
+                </div>
+            </nav>
+
+            <form class="filter-bar" method="GET" action="/<%= user.login %>/repositories">
+                <input class="filter-input" type="text" name="q" value="<%= q %>" placeholder="Find a repository…"
+                    autocomplete="off">
+
+                <select class="filter-select" name="type">
+                    <option value="all" <%=type==="all" ? "selected" : "" %>>Type: All</option>
+                    <option value="owner" <%=type==="owner" ? "selected" : "" %>>Type: Owner</option>
+                    <option value="public" <%=type==="public" ? "selected" : "" %>>Type: Public</option>
+                    <option value="member" <%=type==="member" ? "selected" : "" %>>Type: Member</option>
+                </select>
+
+                <select class="filter-select" name="language">
+                    <option value="">Language: All</option>
+                    <% for (var lang of languages) { %>
+                        <option value="<%= lang %>" <%=language===lang ? "selected" : "" %>><%= lang %>
+                        </option>
+                        <% } %>
+                </select>
+
+                <select class="filter-select" name="sort">
+                    <option value="updated" <%=sort==="updated" ? "selected" : "" %>>Sort: Last updated</option>
+                    <option value="created" <%=sort==="created" ? "selected" : "" %>>Sort: Newest</option>
+                    <option value="pushed" <%=sort==="pushed" ? "selected" : "" %>>Sort: Recently pushed</option>
+                    <option value="full_name" <%=sort==="full_name" ? "selected" : "" %>>Sort: Name</option>
+                </select>
+
+                <input type="hidden" name="page" value="1">
+                <button type="submit" class="filter-btn">Apply</button>
+            </form>
+
+            <% if (repos.length===0) { %>
+                <div class="empty-state">
+                    <i class="fas fa-book"></i>
+                    <h3>No repositories found</h3>
+                    <p>Try adjusting your search or filter criteria.</p>
+                </div>
+                <% } else { %>
+                    <ul class="repo-list">
+                        <% for (var repo of repos) { %>
+                            <li class="repo-item">
+                                <div>
+                                    <div class="repo-item-name">
+                                        <a href="/<%= user.login %>/repository/<%= repo.name %>">
+                                            <%= repo.name %>
+                                        </a>
+                                        <span class="repo-badge">
+                                            <%= repo.private ? "Private" : "Public" %>
+                                        </span>
+                                        <% if (repo.fork) { %><span class="repo-badge">Fork</span>
+                                            <% } %>
+                                                <% if (repo.archived) { %><span class="repo-badge">Archived</span>
+                                                    <% } %>
+                                    </div>
+                                    <% if (repo.description) { %>
+                                        <p class="repo-desc">
+                                            <%= repo.description %>
+                                        </p>
+                                        <% } %>
+                                            <div class="repo-meta">
+                                                <% if (repo.language) { %>
+                                                    <span>
+                                                        <span
+                                                            class="lang-dot lang-<%= (repo.language || "").replace(/\s+/g,"") || "default" %>"></span>
+                                                        <%= repo.language %>
+                                                    </span>
+                                                    <% } %>
+                                                        <% if (repo.stargazers_count> 0) { %>
+                                                            <span><i class="far fa-star"></i>
+                                                                <%= repo.stargazers_count.toLocaleString() %>
+                                                            </span>
+                                                            <% } %>
+                                                                <% if (repo.forks_count> 0) { %>
+                                                                    <span><i class="fas fa-code-branch"></i>
+                                                                        <%= repo.forks_count.toLocaleString() %>
+                                                                    </span>
+                                                                    <% } %>
+                                                                        <% if (repo.open_issues_count> 0) { %>
+                                                                            <span><i
+                                                                                    class="fas fa-circle-exclamation"></i>
+                                                                                <%= repo.open_issues_count %>
+                                                                            </span>
+                                                                            <% } %>
+                                                                                <span style="margin-left:auto;">
+                                                                                    Updated <%= (() => {
+                                                                                        var d = new Date(repo.updated_at)
+                                                                                        var diff = Date.now() - d.getTime()
+                                                                                        var mins = Math.floor(diff / 60000)
+                                                                                        var hrs = Math.floor(mins / 60)
+                                                                                        var days = Math.floor(hrs / 24)
+                                                                                        var mons = Math.floor(days / 30)
+                                                                                        var yrs = Math.floor(mons / 12)
+                                                                                        if (yrs > 0) return yrs + " year" + (yrs > 1 ? "s" : "") + " ago"
+                                                                                        if (mons > 0) return mons + " month" + (mons > 1 ? "s" : "") + " ago"
+                                                                                        if (days > 0) return days + " day" + (days > 1 ? "s" : "") + " ago"
+                                                                                        if (hrs > 0) return hrs + " hour" + (hrs > 1 ? "s" : "") + " ago"
+                                                                                        return mins + " min" + (mins > 1 ? "s" : "") + " ago"
+                                                                                    })() %>
+                                                                                </span>
+                                            </div>
+                                </div>
+
+                                <div class="repo-action">
+                                    <a class="btn-scan" href="/<%= user.login %>/repository/<%= repo.name %>/scan">
+                                        <i class="fas fa-search-plus"></i> Scan
+                                    </a>
+                                    <% if (typeof monitoredList !=="undefined" && monitoredList.includes(repo.name.toLowerCase())) { %>
+                                        <a class="btn-scan"
+                                            href="/<%= user.login %>/repository/<%= repo.name %>/unmonitor"
+                                            style="color: var(--danger-fg)">
+                                            <i class="fas fa-eye-slash"></i> Un-Monitor
+                                        </a>
+                                        <% } else { %>
+                                            <a class="btn-scan"
+                                                href="/<%= user.login %>/repository/<%= repo.name %>/monitor"
+                                                style="color: var(--warning-fg)">
+                                                <i class="fas fa-eye"></i> Monitor
+                                            </a>
+                                            <% } %>
+                                </div>
+                            </li>
+                            <% } %>
+                    </ul>
+
+                    <div class="pagination">
+                        <% var baseQuery=`/${user.login}/repositories?sort=${sort}&type=${type}&language=${language}&q=${q}&page=` %>
+                            <a class="page-btn <%= !hasPrev ? "disabled" : "" %>" href="<%= baseQuery + (page - 1) %>">
+                                <i class="fas fa-chevron-left"></i> Previous
+                            </a>
+                            <span class="page-info">Page <%= page %></span>
+                            <a class="page-btn <%= !hasNext ? "disabled" : "" %>" href="<%= baseQuery + (page + 1) %>">
+                                Next <i class="fas fa-chevron-right"></i>
+                            </a>
+                    </div>
+                    <% } %>
+
+        </main>
+    </div>
+
+</body>
+
+</html>

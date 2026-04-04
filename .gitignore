@@ -1,0 +1,7 @@
+.archived
+.versions
+node_modules
+plugins
+config.toml
+pnpm-lock.yaml
+data

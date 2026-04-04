@@ -1,0 +1,5 @@
+[web]
+port = 8080 # The port the website will listen to.
+
+[github]
+token = "" # Your Github account token with full access or permission (you can use an Alt if you want).

@@ -1,0 +1,473 @@
+<!DOCTYPE html>
+<html lang="en">
+
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Detections | GitFaye</title>
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="icon" href="assets/img/logo.png" type="image/png">
+    <link
+        href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600&family=JetBrains+Mono:wght@400;500;700&display=swap"
+        rel="stylesheet">
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.0/css/all.min.css">
+    <style>
+        :root {
+            --bg-void: #05080d;
+            --bg-deep: #080c12;
+            --bg-panel: #0b1018;
+            --bg-card: #0e1520;
+            --bg-hover: #121c2a;
+            --border: rgba(31, 213, 255, 0.12);
+            --border-dim: rgba(31, 213, 255, 0.06);
+            --cyan: #1fd5ff;
+            --cyan-dim: rgba(31, 213, 255, 0.15);
+            --green: #00e5a0;
+            --red: #ff4757;
+            --amber: #ffb020;
+            --text-1: #d0e8f0;
+            --text-2: #6b8fa8;
+            --text-3: #3a576e;
+            --nav-h: 48px;
+            --sidebar-w: 200px;
+        }
+
+        * {
+            box-sizing: border-box;
+            margin: 0;
+            padding: 0;
+        }
+
+        ::-webkit-scrollbar {
+            width: 6px;
+        }
+
+        ::-webkit-scrollbar-track {
+            background: var(--bg-void);
+        }
+
+        ::-webkit-scrollbar-thumb {
+            background: var(--bg-panel);
+            border: 1px solid var(--border-dim);
+            border-radius: 3px;
+        }
+
+        ::-webkit-scrollbar-thumb:hover {
+            background: var(--cyan-dim);
+            border-color: var(--cyan);
+        }
+
+        body {
+            background: var(--bg-void);
+            color: var(--text-1);
+            font-family: 'Inter', sans-serif;
+            font-size: 13px;
+        }
+
+        body::before {
+            content: '';
+            position: fixed;
+            inset: 0;
+            background-image: linear-gradient(rgba(31, 213, 255, 0.025) 1px, transparent 1px), linear-gradient(90deg, rgba(31, 213, 255, 0.025) 1px, transparent 1px);
+            background-size: 40px 40px;
+            pointer-events: none;
+            z-index: 0;
+        }
+
+        .topnav {
+            height: var(--nav-h);
+            background: var(--bg-deep);
+            border-bottom: 1px solid var(--border);
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            padding: 0 24px;
+            position: sticky;
+            top: 0;
+            z-index: 200;
+            backdrop-filter: blur(12px);
+        }
+
+        .topnav-brand {
+            display: flex;
+            align-items: center;
+            gap: 8px;
+            font-family: 'JetBrains Mono', monospace;
+            font-weight: 700;
+            font-size: 14px;
+            color: var(--text-1);
+            text-decoration: none;
+        }
+
+        .topnav-brand i {
+            color: var(--cyan);
+        }
+
+        .page-wrap {
+            display: grid;
+            grid-template-columns: var(--sidebar-w) 1fr;
+            min-height: calc(100vh - var(--nav-h));
+            position: relative;
+            z-index: 1;
+        }
+
+        aside {
+            background: var(--bg-panel);
+            border-right: 1px solid var(--border-dim);
+            padding: 20px 0;
+            display: flex;
+            flex-direction: column;
+            gap: 2px;
+            position: sticky;
+            top: var(--nav-h);
+            height: calc(100vh - var(--nav-h));
+        }
+
+        .sidebar-label {
+            padding: 0 16px 8px;
+            font-family: 'JetBrains Mono', monospace;
+            font-size: 9px;
+            color: var(--text-3);
+            text-transform: uppercase;
+            letter-spacing: 0.1em;
+        }
+
+        .sidebar-item {
+            padding: 8px 16px;
+            color: var(--text-2);
+            text-decoration: none;
+            display: flex;
+            align-items: center;
+            gap: 10px;
+            font-size: 12px;
+            margin: 0 8px;
+            border-radius: 4px;
+            transition: all 0.2s;
+        }
+
+        .sidebar-item:hover {
+            background: var(--bg-hover);
+            color: var(--text-1);
+        }
+
+        .sidebar-item.active {
+            background: var(--cyan-dim);
+            color: var(--cyan);
+        }
+
+        main {
+            padding: 20px 24px;
+        }
+
+        .table-card {
+            background: var(--bg-card);
+            border: 1px solid var(--border-dim);
+            border-radius: 6px;
+            overflow: hidden;
+        }
+
+        .table-header {
+            padding: 12px 16px;
+            border-bottom: 1px solid var(--border-dim);
+            background: var(--bg-panel);
+        }
+
+        .table-header h2 {
+            font-family: 'JetBrains Mono', monospace;
+            font-size: 11px;
+            color: var(--text-2);
+            text-transform: uppercase;
+            letter-spacing: 0.1em;
+        }
+
+        table {
+            width: 100%;
+            border-collapse: collapse;
+        }
+
+        th {
+            text-align: left;
+            padding: 12px 16px;
+            background: rgba(0, 0, 0, 0.2);
+            color: var(--text-3);
+            font-family: 'JetBrains Mono', monospace;
+            font-size: 10px;
+            text-transform: uppercase;
+        }
+
+        td {
+            padding: 12px 16px;
+            border-bottom: 1px solid var(--border-dim);
+            font-size: 12px;
+        }
+
+        tr:hover {
+            background: var(--bg-hover);
+        }
+
+        .badge {
+            padding: 2px 6px;
+            border-radius: 3px;
+            font-size: 10px;
+            font-family: 'JetBrains Mono', monospace;
+            font-weight: 700;
+            text-transform: uppercase;
+        }
+
+        .badge.critical {
+            background: rgba(255, 71, 87, 0.1);
+            color: var(--red);
+            border: 1px solid rgba(255, 71, 87, 0.3);
+        }
+
+        .badge.high {
+            background: rgba(255, 176, 32, 0.1);
+            color: var(--amber);
+            border: 1px solid rgba(255, 176, 32, 0.3);
+        }
+
+        .badge.medium {
+            background: rgba(31, 213, 255, 0.1);
+            color: var(--cyan);
+            border: 1px solid rgba(31, 213, 255, 0.3);
+        }
+
+        .badge.hidden {
+            background: rgba(107, 143, 168, 0.2);
+            color: #8bb8d0;
+            border: 1px solid rgba(107, 143, 168, 0.4);
+        }
+
+        .badge.fixed {
+            background: rgba(106, 153, 85, 0.15);
+            color: #6a9955;
+            border: 1px solid rgba(106, 153, 85, 0.3);
+        }
+
+        .repo-link {
+            color: var(--cyan);
+            text-decoration: none;
+            font-family: 'JetBrains Mono', monospace;
+        }
+
+        .repo-link:hover {
+            text-decoration: underline;
+        }
+
+        .detail-desc {
+            font-size: 11px;
+            color: var(--text-3);
+            margin-top: 4px;
+        }
+
+        .code-snippet {
+            font-family: 'JetBrains Mono', monospace;
+            color: var(--cyan);
+            background: rgba(31, 213, 255, 0.05);
+            padding: 2px 4px;
+            border-radius: 3px;
+        }
+
+        .pagination {
+            display: flex;
+            justify-content: center;
+            gap: 8px;
+            margin-top: 24px;
+        }
+
+        .btn-page {
+            background: var(--bg-panel);
+            border: 1px solid var(--border-dim);
+            color: var(--text-2);
+            padding: 6px 16px;
+            border-radius: 4px;
+            text-decoration: none;
+            font-family: 'JetBrains Mono', monospace;
+            font-size: 11px;
+            transition: all 0.2s;
+        }
+
+        .btn-page:hover {
+            border-color: var(--cyan);
+            color: var(--cyan);
+            background: var(--cyan-dim);
+        }
+
+        .btn-ignore {
+            color: var(--text-3);
+            background: rgba(255, 255, 255, 0.03);
+            border: 1px solid var(--border-dim);
+            padding: 4px 10px;
+            border-radius: 4px;
+            font-size: 10px;
+            font-family: 'JetBrains Mono', monospace;
+            cursor: pointer;
+            transition: all 0.2s;
+            text-decoration: none;
+            display: inline-flex;
+            align-items: center;
+            gap: 6px;
+        }
+
+        .btn-ignore:hover {
+            color: var(--amber);
+            border-color: var(--amber);
+            background: rgba(255, 176, 32, 0.08);
+            text-shadow: 0 0 8px rgba(255, 176, 32, 0.3);
+        }
+
+        @media (max-width: 768px) {
+            .page-wrap {
+                grid-template-columns: 1fr;
+            }
+
+            aside {
+                display: none;
+            }
+        }
+    </style>
+</head>
+
+<body>
+    <nav class="topnav">
+        <a href="/" class="topnav-brand"><i class="fab fa-git-alt"></i> GITFAYE</a>
+    </nav>
+    <div class="page-wrap">
+        <aside>
+            <div class="sidebar-label">Navigation</div>
+            <a href="/defense" class="sidebar-item"><i class="fas fa-shield-alt"></i> Overview</a>
+            <a href="/monitored" class="sidebar-item">
+                <i class="fas fa-satellite-dish"></i> Monitored
+            </a>
+            <a href="/detections" class="sidebar-item active"><i class="fas fa-bug"></i> Detections</a>
+        </aside>
+        <main>
+            <div class="table-card">
+                <div class="table-header" style="display: flex; justify-content: space-between; align-items: center;">
+                    <h2>Detections</h2>
+                    <div style="display: flex; gap: 8px;">
+                        <% if (typeof showHidden !=="undefined" && showHidden) { %>
+                            <a href="/detections" class="btn-ignore"
+                                style="color: var(--text-2); border-color: var(--border-dim);">
+                                <i class="fas fa-eye"></i> HIDE FALSE
+                            </a>
+                            <% } else { %>
+                                <a href="/detections?show=hidden" class="btn-ignore"
+                                    style="color: var(--cyan); border-color: var(--cyan-dim);">
+                                    <i class="fas fa-eye-low-vision"></i> SHOW HIDDEN
+                                </a>
+                                <% } %>
+                        <% if (typeof showFixes !=="undefined" && showFixes) { %>
+                            <a href="/detections" class="btn-ignore"
+                                style="color: var(--text-2); border-color: var(--border-dim);">
+                                <i class="fas fa-eye"></i> HIDE FIXES
+                            </a>
+                        <% } else { %>
+                            <a href="/detections?show=fixes" class="btn-ignore"
+                                style="color: #6a9955; border-color: rgba(106, 153, 85, 0.2);">
+                                <i class="fas fa-check"></i> SHOW FIXES
+                            </a>
+                        <% } %>
+                    </div>
+                </div>
+                <table>
+                    <thead>
+                        <tr>
+                            <th>REPOSITORY</th>
+                            <th>FINDING</th>
+                            <th>SEVERITY</th>
+                            <th>TIMESTAMP</th>
+                            <th>CONTEXT</th>
+                            <th style="text-align: right;">ACTION</th>
+                        </tr>
+                    </thead>
+                    <tbody>
+                        <% if (detections && detections.length> 0) { %>
+                            <% detections.forEach(d=> { %>
+                                <tr>
+                                    <td>
+                                        <a href="/<%= d.username %>/repository/<%= d.repo %>" class="repo-link">
+                                            <%= d.username %>/<%= d.repo %>
+                                        </a>
+                                    </td>
+                                    <td>
+                                        <div style="font-weight: 600;">
+                                            <%= d.name %>
+                                        </div>
+                                        <div class="detail-desc">
+                                            <%= d.risk || '' %>
+                                        </div>
+                                        <% if (d.isHidden) { %>
+                                            <div style="margin-top: 4px;"><span class="badge hidden">FALSE
+                                                    POSITIVE</span></div>
+                                            <% } %>
+                                        <% if (d.isFixed) { %>
+                                            <div style="margin-top: 4px;"><span class="badge fixed">FIXED</span></div>
+                                            <% } %>
+                                    </td>
+                                    <td><span class="badge <%= (d.severity || "low").toLowerCase() %>">
+                                            <%= d.severity || "UNKNOWN" %>
+                                        </span></td>
+                                    <td
+                                        style="font-family: 'JetBrains Mono', monospace; color: var(--text-3); font-size: 11px;">
+                                        <%= new Date(d.date).toLocaleString("en-US", { hour12: false }) %>
+                                    </td>
+                                    <td>
+                                        <div
+                                            style="max-width: 300px; overflow: hidden; text-overflow: ellipsis; white-space: nowrap; font-size: 11px;">
+                                            SRC: <span class="code-snippet">
+                                                <%= d.path %>
+                                            </span>
+                                            <% if (d.commit) { %> <span style="color: var(--text-3);">@ <%= d.commit %>
+                                                </span>
+                                                <% } %>
+                                        </div>
+                                    </td>
+                                    <td style="text-align: right;">
+                                        <div style="display: flex; gap: 6px; justify-content: flex-end;">
+                                            <% if (d.isHidden) { %>
+                                                <a href="/<%= d.username %>/repository/<%= d.repo %>/detection/<%= d.id %>/remove-ignore"
+                                                    class="btn-ignore" title="Remove mark as False Positive">
+                                                    <i class="fas fa-eye"></i> REMOVE
+                                                </a>
+                                            <% } else if (d.isFixed) { %>
+                                                <a href="/<%= d.username %>/repository/<%= d.repo %>/detection/<%= d.id %>/remove-fixed"
+                                                    class="btn-ignore" title="Remove mark as Fixed">
+                                                    <i class="fas fa-eye"></i> REMOVE
+                                                </a>
+                                            <% } else { %>
+                                                <a href="/<%= d.username %>/repository/<%= d.repo %>/detection/<%= d.id %>/ignore"
+                                                    class="btn-ignore" title="Mark as False Positive">
+                                                    <i class="fas fa-eye-slash"></i> IGNORE
+                                                </a>
+                                                <a href="/<%= d.username %>/repository/<%= d.repo %>/detection/<%= d.id %>/fixed"
+                                                    class="btn-ignore" title="Mark as Fixed" style="color: #6a9955; border-color: rgba(106, 153, 85, 0.2);">
+                                                    <i class="fas fa-check"></i> FIXED
+                                                </a>
+                                            <% } %>
+                                        </div>
+                                    </td>
+                                </tr>
+                                <% }) %>
+                                    <% } else { %>
+                                        <tr>
+                                            <td colspan="5"
+                                                style="text-align: center; color: var(--text-3); padding: 48px; font-family: 'JetBrains Mono', monospace;">
+                                                No Detections Yet</td>
+                                        </tr>
+                                        <% } %>
+                    </tbody>
+                </table>
+            </div>
+            <div class="pagination">
+                <% if (hasPrev) { %><a href="?page=<%= page - 1 %>" class="btn-page">
+                        < PREVIOUS_LOG</a>
+                            <% } %>
+                                <% if (hasNext) { %><a href="?page=<%= page + 1 %>" class="btn-page">NEXT_LOG ></a>
+                                    <% } %>
+            </div>
+        </main>
+    </div>
+</body>
+
+</html>

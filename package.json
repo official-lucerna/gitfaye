@@ -1,0 +1,26 @@
+{
+  "name": "gitfaye",
+  "version": "1.0.0",
+  "description": "",
+  "main": "index.js",
+  "scripts": {
+    "test": "echo \"Error: no test specified\" && exit 1"
+  },
+  "keywords": [],
+  "author": "The First Decree",
+  "license": "MIT",
+  "packageManager": "pnpm@10.19.0",
+  "dependencies": {
+    "chalk": "2.4.2",
+    "compression": "^1.8.1",
+    "cookie-parser": "^1.4.7",
+    "cryptr": "^6.4.0",
+    "ejs": "^4.0.1",
+    "express": "^5.2.1",
+    "hash.js": "^1.1.7",
+    "helmet": "^8.1.0",
+    "ky": "^1.14.3",
+    "simple-aes-256": "^3.0.1",
+    "smol-toml": "^1.6.0"
+  }
+}

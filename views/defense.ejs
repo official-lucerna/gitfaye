@@ -1,0 +1,935 @@
+<!DOCTYPE html>
+<html lang="en">
+
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Defense | GitFaye</title>
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="icon" href="assets/img/logo.png" type="image/png">
+    <link
+        href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600&family=JetBrains+Mono:wght@400;500;700&display=swap"
+        rel="stylesheet">
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.0/css/all.min.css">
+    <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
+    <meta http-equiv="refresh" content="30">
+    <style>
+        :root {
+            --bg-void: #05080d;
+            --bg-deep: #080c12;
+            --bg-panel: #0b1018;
+            --bg-card: #0e1520;
+            --bg-hover: #121c2a;
+            --border: rgba(31, 213, 255, 0.12);
+            --border-dim: rgba(31, 213, 255, 0.06);
+            --cyan: #1fd5ff;
+            --cyan-dim: rgba(31, 213, 255, 0.15);
+            --cyan-glow: rgba(31, 213, 255, 0.4);
+            --green: #00e5a0;
+            --green-dim: rgba(0, 229, 160, 0.12);
+            --red: #ff4757;
+            --red-dim: rgba(255, 71, 87, 0.12);
+            --amber: #ffb020;
+            --amber-dim: rgba(255, 176, 32, 0.12);
+            --text-1: #d0e8f0;
+            --text-2: #6b8fa8;
+            --text-3: #3a576e;
+            --nav-h: 48px;
+            --sidebar-w: 200px;
+        }
+
+        * {
+            box-sizing: border-box;
+            margin: 0;
+            padding: 0;
+        }
+
+        ::-webkit-scrollbar {
+            width: 6px;
+        }
+
+        ::-webkit-scrollbar-track {
+            background: var(--bg-void);
+        }
+
+        ::-webkit-scrollbar-thumb {
+            background: var(--bg-panel);
+            border: 1px solid var(--border-dim);
+            border-radius: 3px;
+        }
+
+        ::-webkit-scrollbar-thumb:hover {
+            background: var(--cyan-dim);
+            border-color: var(--cyan);
+        }
+
+        body {
+            background: var(--bg-void);
+            color: var(--text-1);
+            font-family: 'Inter', sans-serif;
+            font-size: 13px;
+            min-height: 100vh;
+            overflow-x: hidden;
+        }
+
+        body::before {
+            content: '';
+            position: fixed;
+            inset: 0;
+            background-image:
+                linear-gradient(rgba(31, 213, 255, 0.025) 1px, transparent 1px),
+                linear-gradient(90deg, rgba(31, 213, 255, 0.025) 1px, transparent 1px);
+            background-size: 40px 40px;
+            pointer-events: none;
+            z-index: 0;
+        }
+
+        .topnav {
+            height: var(--nav-h);
+            background: var(--bg-deep);
+            border-bottom: 1px solid var(--border);
+            display: flex;
+            align-items: center;
+            justify-content: space-between;
+            padding: 0 24px;
+            position: sticky;
+            top: 0;
+            z-index: 200;
+            backdrop-filter: blur(12px);
+        }
+
+        .topnav::after {
+            content: '';
+            position: absolute;
+            bottom: 0;
+            left: 0;
+            right: 0;
+            height: 1px;
+            background: linear-gradient(90deg, transparent, var(--cyan), transparent);
+            opacity: 0.5;
+        }
+
+        .topnav-brand {
+            display: flex;
+            align-items: center;
+            gap: 8px;
+            font-family: 'JetBrains Mono', monospace;
+            font-weight: 700;
+            font-size: 14px;
+            color: var(--text-1);
+            text-decoration: none;
+            letter-spacing: 0.05em;
+        }
+
+        .topnav-brand i {
+            color: var(--cyan);
+            font-size: 16px;
+        }
+
+        .nav-status {
+            display: flex;
+            align-items: center;
+            gap: 6px;
+            font-family: 'JetBrains Mono', monospace;
+            font-size: 11px;
+            color: var(--text-2);
+        }
+
+        .status-dot {
+            width: 6px;
+            height: 6px;
+            border-radius: 50%;
+            background: var(--green);
+            box-shadow: 0 0 8px var(--green-dim);
+        }
+
+        .refresh-indicator {
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            position: relative;
+        }
+
+        .refresh-indicator svg {
+            transform: rotate(-90deg);
+        }
+
+        .refresh-indicator circle {
+            stroke-width: 2px;
+            stroke-linecap: round;
+        }
+
+        .refresh-indicator .bg {
+            stroke: var(--border-dim);
+        }
+
+        .refresh-indicator .meter {
+            stroke: var(--cyan);
+            stroke-dasharray: 50.24;
+            stroke-dashoffset: 50.24;
+            animation: refresh-progress 30s linear forwards;
+        }
+
+        @keyframes refresh-progress {
+            0% {
+                stroke-dashoffset: 50.24;
+            }
+
+            100% {
+                stroke-dashoffset: 0;
+            }
+        }
+
+        @keyframes pulse {
+
+            0%,
+            100% {
+                opacity: 1;
+            }
+
+            50% {
+                opacity: 0.4;
+            }
+        }
+
+        .nav-time {
+            font-family: 'JetBrains Mono', monospace;
+            font-size: 11px;
+            color: var(--text-3);
+        }
+
+        .page-wrap {
+            display: grid;
+            grid-template-columns: var(--sidebar-w) 1fr;
+            min-height: calc(100vh - var(--nav-h));
+            position: relative;
+            z-index: 1;
+        }
+
+        aside {
+            background: var(--bg-panel);
+            border-right: 1px solid var(--border-dim);
+            padding: 20px 0;
+            display: flex;
+            flex-direction: column;
+            gap: 2px;
+            position: sticky;
+            top: var(--nav-h);
+            height: calc(100vh - var(--nav-h));
+        }
+
+        .sidebar-label {
+            padding: 0 16px 8px;
+            font-family: 'JetBrains Mono', monospace;
+            font-size: 9px;
+            color: var(--text-3);
+            letter-spacing: 0.15em;
+            text-transform: uppercase;
+        }
+
+        .sidebar-item {
+            padding: 8px 16px;
+            color: var(--text-2);
+            text-decoration: none;
+            display: flex;
+            align-items: center;
+            gap: 10px;
+            font-size: 12px;
+            font-weight: 500;
+            transition: all 0.15s ease;
+            border-left: 2px solid transparent;
+            margin: 0 8px;
+            border-radius: 4px;
+        }
+
+        .sidebar-item:hover {
+            background: var(--bg-hover);
+            color: var(--text-1);
+        }
+
+        .sidebar-item.active {
+            background: var(--cyan-dim);
+            color: var(--cyan);
+            border-left-color: var(--cyan);
+        }
+
+        .sidebar-item i {
+            width: 14px;
+            font-size: 11px;
+            opacity: 0.7;
+        }
+
+        .sidebar-item.active i {
+            opacity: 1;
+        }
+
+        .sidebar-divider {
+            height: 1px;
+            background: var(--border-dim);
+            margin: 10px 16px;
+        }
+
+        main {
+            padding: 20px 24px;
+            display: flex;
+            flex-direction: column;
+            gap: 16px;
+        }
+
+        .page-header {
+            display: flex;
+            align-items: center;
+            justify-content: space-between;
+            margin-bottom: 4px;
+        }
+
+        .page-title {
+            font-family: 'JetBrains Mono', monospace;
+            font-size: 12px;
+            color: var(--text-2);
+            letter-spacing: 0.08em;
+        }
+
+        .page-title span {
+            color: var(--cyan);
+        }
+
+        .counters-grid {
+            display: grid;
+            grid-template-columns: repeat(10, 1fr);
+            gap: 8px;
+        }
+
+        .counter-card {
+            background: var(--bg-card);
+            border: 1px solid var(--border-dim);
+            border-radius: 6px;
+            padding: 12px 8px;
+            text-align: center;
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            justify-content: center;
+            gap: 6px;
+            transition: border-color 0.2s, background 0.2s;
+            cursor: default;
+        }
+
+        .counter-card:hover {
+            background: var(--bg-hover);
+        }
+
+        .counter-val {
+            font-family: 'JetBrains Mono', monospace;
+            font-size: 22px;
+            font-weight: 700;
+            line-height: 1;
+            color: var(--cyan);
+        }
+
+        .counter-card:nth-child(1) .counter-val {
+            color: var(--cyan);
+        }
+
+        .counter-card:nth-child(2) .counter-val {
+            color: var(--cyan);
+        }
+
+        .counter-card:nth-child(3) .counter-val {
+            color: var(--green);
+        }
+
+        .counter-card:nth-child(4) .counter-val {
+            color: var(--amber);
+        }
+
+        .counter-card:nth-child(5) .counter-val {
+            color: var(--red);
+        }
+
+        .counter-card:nth-child(6) .counter-val {
+            color: var(--cyan);
+        }
+
+        .counter-card:nth-child(7) .counter-val {
+            color: var(--green);
+        }
+
+        .counter-card:nth-child(8) .counter-val {
+            color: var(--text-2);
+        }
+
+        .counter-card:nth-child(1):hover {
+            border-color: rgba(31, 213, 255, 0.3);
+        }
+
+        .counter-card:nth-child(4):hover {
+            border-color: rgba(255, 176, 32, 0.3);
+        }
+
+        .counter-card:nth-child(5):hover {
+            border-color: rgba(255, 71, 87, 0.3);
+        }
+
+        .counter-lbl {
+            font-size: 9px;
+            color: var(--text-3);
+            letter-spacing: 0.06em;
+            text-transform: uppercase;
+            font-weight: 500;
+            line-height: 1.3;
+        }
+
+        .chart-card {
+            background: var(--bg-card);
+            border: 1px solid var(--border-dim);
+            border-radius: 6px;
+            padding: 16px;
+        }
+
+        .card-title {
+            display: flex;
+            align-items: center;
+            gap: 8px;
+            margin-bottom: 14px;
+            font-family: 'JetBrains Mono', monospace;
+            font-size: 10px;
+            color: var(--text-2);
+            letter-spacing: 0.1em;
+            text-transform: uppercase;
+        }
+
+        .card-title i {
+            color: var(--cyan);
+            font-size: 10px;
+        }
+
+        .table-card {
+            background: var(--bg-card);
+            border: 1px solid var(--border-dim);
+            border-radius: 6px;
+            overflow: hidden;
+        }
+
+        .table-head {
+            padding: 10px 16px;
+            border-bottom: 1px solid var(--border-dim);
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            background: var(--bg-panel);
+        }
+
+        table {
+            width: 100%;
+            border-collapse: collapse;
+        }
+
+        tr {
+            border-bottom: 1px solid var(--border-dim);
+            transition: background 0.1s;
+        }
+
+        tr:last-child {
+            border-bottom: none;
+        }
+
+        tr:hover td {
+            background: var(--bg-hover);
+        }
+
+        td {
+            padding: 10px 16px;
+            font-size: 12px;
+            color: var(--text-1);
+        }
+
+        .user-info {
+            display: flex;
+            align-items: center;
+            gap: 10px;
+            color: var(--cyan);
+            font-weight: 500;
+            text-decoration: none;
+            font-family: 'JetBrains Mono', monospace;
+            font-size: 12px;
+        }
+
+        .user-info:hover {
+            text-decoration: underline;
+        }
+
+        .avatar {
+            width: 24px;
+            height: 24px;
+            border-radius: 50%;
+            border: 1px solid var(--border);
+        }
+
+        .repo-count {
+            color: var(--text-3);
+            font-size: 11px;
+            font-family: 'JetBrains Mono', monospace;
+            display: inline-block;
+            vertical-align: middle;
+        }
+
+        .btn-add {
+            background: transparent;
+            color: var(--cyan);
+            border: 1px solid var(--border);
+            padding: 5px 10px;
+            border-radius: 4px;
+            font-size: 11px;
+            font-family: 'JetBrains Mono', monospace;
+            font-weight: 500;
+            cursor: pointer;
+            transition: all 0.15s;
+            letter-spacing: 0.05em;
+        }
+
+        .btn-add:hover {
+            background: var(--cyan-dim);
+            border-color: var(--cyan);
+        }
+
+        .btn-remove {
+            color: var(--text-3);
+            background: transparent;
+            border: none;
+            cursor: pointer;
+            padding: 4px;
+            transition: all 0.2s;
+            font-size: 11px;
+            margin-left: 8px;
+        }
+
+        .btn-remove:hover {
+            color: var(--red);
+            text-shadow: 0 0 8px var(--red);
+        }
+
+        #modal {
+            position: fixed;
+            inset: 0;
+            background: rgba(0, 0, 0, 0.85);
+            display: none;
+            justify-content: center;
+            align-items: center;
+            z-index: 300;
+            backdrop-filter: blur(4px);
+        }
+
+        #modal.open {
+            display: flex;
+        }
+
+        .modal-body {
+            background: var(--bg-panel);
+            border: 1px solid var(--border);
+            padding: 28px;
+            border-radius: 8px;
+            width: 320px;
+            box-shadow: 0 0 40px rgba(31, 213, 255, 0.08);
+        }
+
+        .modal-body h2 {
+            font-family: 'JetBrains Mono', monospace;
+            font-size: 13px;
+            color: var(--cyan);
+            margin-bottom: 16px;
+            letter-spacing: 0.08em;
+        }
+
+        input {
+            width: 100%;
+            background: var(--bg-deep);
+            border: 1px solid var(--border-dim);
+            padding: 9px 12px;
+            border-radius: 4px;
+            color: var(--text-1);
+            outline: none;
+            margin-bottom: 14px;
+            font-size: 12px;
+            font-family: 'JetBrains Mono', monospace;
+            transition: border-color 0.15s;
+        }
+
+        input:focus {
+            border-color: var(--cyan);
+        }
+
+        .modal-actions {
+            display: flex;
+            gap: 8px;
+        }
+
+        .btn {
+            flex: 1;
+            padding: 9px;
+            border-radius: 4px;
+            border: none;
+            cursor: pointer;
+            font-size: 12px;
+            font-family: 'JetBrains Mono', monospace;
+            font-weight: 500;
+            transition: all 0.15s;
+        }
+
+        .btn-cancel {
+            background: rgba(255, 255, 255, 0.05);
+            color: var(--text-2);
+            border: 1px solid var(--border-dim);
+        }
+
+        .btn-cancel:hover {
+            background: rgba(255, 255, 255, 0.09);
+        }
+
+        .btn-submit {
+            background: var(--cyan-dim);
+            color: var(--cyan);
+            border: 1px solid var(--border);
+        }
+
+        .btn-submit:hover {
+            background: rgba(31, 213, 255, 0.22);
+        }
+
+        @media (max-width: 1200px) {
+            .counters-grid {
+                grid-template-columns: repeat(5, 1fr);
+            }
+        }
+
+        @media (max-width: 768px) {
+            .page-wrap {
+                grid-template-columns: 1fr;
+            }
+
+            .counters-grid {
+                grid-template-columns: repeat(2, 1fr);
+            }
+
+            aside {
+                position: static;
+                height: auto;
+            }
+        }
+    </style>
+</head>
+
+<body>
+    <nav class="topnav">
+        <a href="/" class="topnav-brand">
+            <i class="fab fa-git-alt"></i> GITFAYE
+        </a>
+        <div class="nav-status">
+            <span>SYNCING</span>
+            <div class="refresh-indicator">
+                <svg width="18" height="18" viewBox="0 0 20 20">
+                    <circle cx="10" cy="10" r="8" fill="none" class="bg" />
+                    <circle cx="10" cy="10" r="8" fill="none" class="meter" />
+                </svg>
+            </div>
+        </div>
+    </nav>
+
+    <div class="page-wrap">
+        <aside>
+            <div class="sidebar-label">Navigation</div>
+            <a href="/defense" class="sidebar-item active">
+                <i class="fas fa-shield-alt"></i> Overview
+            </a>
+            <a href="/monitored" class="sidebar-item">
+                <i class="fas fa-satellite-dish"></i> Monitored
+            </a>
+            <a href="/detections" class="sidebar-item">
+                <i class="fas fa-bug"></i> Detections
+            </a>
+        </aside>
+
+        <main>
+            <div class="page-header">
+                <div class="page-title"><span>DEFENSE</span> · OVERVIEW</div>
+            </div>
+
+            <% var scannedRepos=0, detectedLeaks=0, detectedVulns=0; var runningChecks=0, completedChecks=0; var
+                last7DaysData=[0,0,0,0,0,0,0]; var last7DaysLabels=[]; var today=new Date()
+                today.setHours(0,0,0,0); for (var i=6; i>= 0; i--) {
+                var d = new Date(today)
+                d.setDate(d.getDate() - i)
+                last7DaysLabels.push(d.toLocaleDateString("en-US", { weekday: "short" }))
+                }
+                if (typeof scans !== "undefined") {
+                scannedRepos = [...new Set(scans.map(s => s.id))].length
+                scans.forEach(s => {
+                if (s.status === "running") runningChecks++
+                if (s.status === "completed") {
+                completedChecks++
+                var lc = s.leaks ? s.leaks.length : 0
+                var vc = s.vulnerabilities ? s.vulnerabilities.length : 0
+                detectedLeaks += lc
+                detectedVulns += vc
+                var total = lc + vc
+                if (total > 0 && s.completedAt) {
+                var cd = new Date(s.completedAt)
+                cd.setHours(0,0,0,0)
+                var diff = Math.floor((today - cd) / 86400000)
+                if (diff >= 0 && diff <= 6) last7DaysData[6 - diff] +=total } } }) } %>
+
+                    <div class="counters-grid">
+                        <div class="counter-card">
+                            <div class="counter-val">
+                                <%= scannedRepos %>
+                            </div>
+                            <div class="counter-lbl">Scanned Repos</div>
+                        </div>
+                        <div class="counter-card">
+                            <div class="counter-val">
+                                <%= (typeof monitored !=="undefined" ) ? monitored.length : 0 %>
+                            </div>
+                            <div class="counter-lbl">Monitored Repos</div>
+                        </div>
+                        <div class="counter-card">
+                            <div class="counter-val">
+                                <%= users.length %>
+                            </div>
+                            <div class="counter-lbl">Added Accounts</div>
+                        </div>
+                        <div class="counter-card">
+                            <div class="counter-val">
+                                <%= detectedLeaks %>
+                            </div>
+                            <div class="counter-lbl">Detected Leaks</div>
+                        </div>
+                        <div class="counter-card">
+                            <div class="counter-val">
+                                <%= detectedVulns %>
+                            </div>
+                            <div class="counter-lbl">Vulnerabilities</div>
+                        </div>
+                        <div class="counter-card" style="border-color: rgba(31, 213, 255, 0.4);">
+                            <div class="counter-val">
+                                <%= typeof queueLength !== "undefined" ? queueLength : 0 %>
+                            </div>
+                            <div class="counter-lbl">Queue Checks</div>
+                        </div>
+                        <div class="counter-card">
+                            <div class="counter-val">
+                                <%= runningChecks %>
+                            </div>
+                            <div class="counter-lbl">Running Checks</div>
+                        </div>
+                        <div class="counter-card">
+                            <div class="counter-val">
+                                <%= completedChecks %>
+                            </div>
+                            <div class="counter-lbl">Completed Checks</div>
+                        </div>
+                        <div class="counter-card">
+                            <div class="counter-val">
+                                <%= (typeof falsePositives !=="undefined" ) ? falsePositives.length : 0 %>
+                            </div>
+                            <div class="counter-lbl">False Positives</div>
+                        </div>
+                        <div class="counter-card">
+                            <div class="counter-val" style="color: #6a9955;">
+                                <%= (typeof fixed !=="undefined" ) ? fixed.length : 0 %>
+                            </div>
+                            <div class="counter-lbl">Fixed Threats</div>
+                        </div>
+                    </div>
+
+                    <div class="chart-card">
+                        <div class="card-title">
+                            <i class="fas fa-chart-line"></i> DETECTIONS BY DAY
+                        </div>
+                        <div style="height: 200px;">
+                            <canvas id="detectionsChart"></canvas>
+                        </div>
+                    </div>
+
+                    <div class="table-card">
+                        <div class="table-head">
+                            <div class="card-title" style="margin:0;">
+                                <i class="fas fa-user-shield"></i> MONITORED ACCOUNTS
+                            </div>
+                            <button class="btn-add" onclick="openModal()">+ ADD</button>
+                        </div>
+                        <table>
+                            <% users.forEach(u=> { %>
+                                <tr>
+                                    <td>
+                                        <a href="/<%= u.login %>/repositories" class="user-info">
+                                            <img src="<%= u.avatar_url %>" class="avatar">
+                                            <%= u.login %>
+                                        </a>
+                                    </td>
+                                    <td style="text-align: right; white-space: nowrap;">
+                                        <span class="repo-count">
+                                            <%= u.public_repos %> repos
+                                        </span>
+                                        <button class="btn-remove" onclick="removeAccount('<%= u.login %>')"
+                                            title="Remove Account">
+                                            <i class="fas fa-trash-alt"></i>
+                                        </button>
+                                    </td>
+                                </tr>
+                                <% }) %>
+                                    <% if (users.length===0) { %>
+                                        <tr>
+                                            <td colspan="2"
+                                                style="text-align: center; color: var(--text-3); padding: 32px; font-family: 'JetBrains Mono', monospace; font-size: 11px;">
+                                                NO ACCOUNTS REGISTERED
+                                            </td>
+                                        </tr>
+                                        <% } %>
+                        </table>
+                    </div>
+
+                    <div class="table-card">
+                        <div class="table-head">
+                            <div class="card-title" style="margin:0;">
+                                <i class="fas fa-bug"></i> RECENT DETECTIONS
+                            </div>
+                            <a href="/detections" class="btn-add" style="text-decoration:none;">VIEW ALL</a>
+                        </div>
+                        <table>
+                            <% 
+                                var recent = []
+
+                                if (typeof scans !== "undefined") {
+                                    scans.filter(s => s.status === "completed").forEach(s => {
+                                        if (s.leaks) s.leaks.forEach(l => recent.push({ ...l, type: "leak", repo: s.repo, username: s.username, date: s.completedAt }));
+                                        if (s.vulnerabilities) s.vulnerabilities.forEach(v => recent.push({ ...v, type: "vulnerability", repo: s.repo, username: s.username, date: s.completedAt }));
+                                    });
+                                }
+
+                                recent.sort((a, b) => b.date - a.date);
+                                var fpSet = new Set((typeof falsePositives !== "undefined" ? falsePositives : []).map(f => f.fpKey || `${f.username}/${f.repo}/${f.detectionId}`));
+                                var fixSet = new Set((typeof fixed !== "undefined" ? fixed : []).map(f => f.fixKey || `${f.username}/${f.repo}/${f.detectionId}`));
+                                var display = recent.filter(d => !fpSet.has(`${d.username}/${d.repo}/${d.id}`) && !fixSet.has(`${d.username}/${d.repo}/${d.id}`)).slice(0, 5);
+                            %>
+                            <% if (display.length > 0) { %>
+                                <% display.forEach(d => { %>
+                                    <tr>
+                                        <td>
+                                            <div style="font-weight: 500; color: var(--cyan);"><%= d.name %></div>
+                                            <div style="font-size: 10px; color: var(--text-3);"><%= d.username %>/<%= d.repo %></div>
+                                        </td>
+                                        <td>
+                                            <span class="badge <%= (d.severity || 'low').toLowerCase() %>" style="font-size:9px; padding: 2px 6px;">
+                                                <%= d.severity || 'UNKNOWN' %>
+                                            </span>
+                                        </td>
+                                        <td style="text-align: right;">
+                                            <div style="display: flex; gap: 8px; justify-content: flex-end;">
+                                                <a href="/<%= d.username %>/repository/<%= d.repo %>/detection/<%= d.id %>/ignore"
+                                                    class="btn-add" style="padding: 3px 8px; font-size: 10px; color: var(--text-2); border-color: var(--border-dim);" title="False Positive">
+                                                    IGNORE
+                                                </a>
+                                                <a href="/<%= d.username %>/repository/<%= d.repo %>/detection/<%= d.id %>/fixed"
+                                                    class="btn-add" style="padding: 3px 8px; font-size: 10px; color: #6a9955; border-color: rgba(106, 153, 85, 0.2);" title="Mark Fixed">
+                                                    FIXED
+                                                </a>
+                                            </div>
+                                        </td>
+                                    </tr>
+                                <% }) %>
+                            <% } else { %>
+                                <tr>
+                                    <td colspan="3" style="text-align: center; color: var(--text-3); padding: 32px; font-family: 'JetBrains Mono', monospace; font-size: 11px;">
+                                        NO RECENT THREATS
+                                    </td>
+                                </tr>
+                            <% } %>
+                        </table>
+                    </div>
+        </main>
+    </div>
+
+    <div id="modal">
+        <div class="modal-body">
+            <h2>ADD ACCOUNT</h2>
+            <form action="/api/add-user" method="POST">
+                <input type="text" name="username" placeholder="Github username" required autofocus>
+                <div class="modal-actions">
+                    <button type="button" class="btn btn-cancel" onclick="closeModal()">CANCEL</button>
+                    <button type="submit" class="btn btn-submit">CONFIRM</button>
+                </div>
+            </form>
+        </div>
+    </div>
+
+    <script>
+        // Core
+        function openModal() { document.getElementById("modal").classList.add("open") }
+        function closeModal() { document.getElementById("modal").classList.remove("open") }
+        document.getElementById("modal").addEventListener("click", e => { if (e.target === e.currentTarget) closeModal() })
+
+        function removeAccount(username) {
+            if (confirm(`PURGE DATA SOURCE: ${username}?`)) {
+                window.location.href = `/${username}/remove`
+            }
+        }
+
+        //* Chart
+        var ctx = document.getElementById("detectionsChart").getContext("2d")
+        new Chart(ctx, {
+            type: "line",
+            data: {
+                labels: <%- JSON.stringify(last7DaysLabels) %>,
+                datasets: [{
+                    label: "Detections",
+                    data: <%- JSON.stringify(last7DaysData) %>,
+                    borderColor: "#1fd5ff",
+                    backgroundColor: "rgba(31, 213, 255, 0.06)",
+                    borderWidth: 1.5,
+                    pointBackgroundColor: "#1fd5ff",
+                    pointBorderColor: "#05080d",
+                    pointBorderWidth: 2,
+                    pointRadius: 3,
+                    pointHoverRadius: 5,
+                    fill: true,
+                    tension: 0.4
+                }]
+            },
+            options: {
+                responsive: true,
+                maintainAspectRatio: false,
+                plugins: {
+                    legend: { display: false },
+                    tooltip: {
+                        backgroundColor: "rgba(11, 16, 24, 0.95)",
+                        titleColor: "#1fd5ff",
+                        bodyColor: "#d0e8f0",
+                        borderColor: "rgba(31, 213, 255, 0.2)",
+                        borderWidth: 1,
+                        displayColors: false,
+                        padding: 10,
+                        titleFont: { family: "JetBrains Mono", size: 11 },
+                        bodyFont: { family: "JetBrains Mono", size: 11 },
+                        callbacks: { label: ctx => ctx.raw + " detections" }
+                    }
+                },
+                scales: {
+                    y: {
+                        beginAtZero: true,
+                        ticks: { stepSize: 1, precision: 0, color: "#3a576e", font: { family: "JetBrains Mono", size: 10 } },
+                        grid: { color: "rgba(31, 213, 255, 0.05)" },
+                        border: { display: false }
+                    },
+                    x: {
+                        ticks: { color: "#3a576e", font: { family: "JetBrains Mono", size: 10 } },
+                        grid: { display: false },
+                        border: { display: false }
+                    }
+                }
+            }
+        })
+
+    </script>
+</body>
+
+</html>

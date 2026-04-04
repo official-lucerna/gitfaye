@@ -1,0 +1,435 @@
+<!DOCTYPE html>
+<html lang="en">
+
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Monitored Repositories | GitFaye</title>
+    <link rel="icon" href="assets/img/logo.png" type="image/png">
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link
+        href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600&family=JetBrains+Mono:wght@400;500;700&display=swap"
+        rel="stylesheet">
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.0/css/all.min.css">
+    <style>
+        :root {
+            --bg-void: #05080d;
+            --bg-deep: #080c12;
+            --bg-panel: #0b1018;
+            --bg-card: #0e1520;
+            --bg-hover: #121c2a;
+            --border: rgba(31, 213, 255, 0.12);
+            --border-dim: rgba(31, 213, 255, 0.06);
+            --cyan: #1fd5ff;
+            --cyan-dim: rgba(31, 213, 255, 0.15);
+            --green: #00e5a0;
+            --red: #ff4757;
+            --amber: #ffb020;
+            --text-1: #d0e8f0;
+            --text-2: #6b8fa8;
+            --text-3: #3a576e;
+            --nav-h: 48px;
+            --sidebar-w: 200px;
+        }
+
+        * {
+            box-sizing: border-box;
+            margin: 0;
+            padding: 0;
+        }
+
+        ::-webkit-scrollbar {
+            width: 6px;
+        }
+
+        ::-webkit-scrollbar-track {
+            background: var(--bg-void);
+        }
+
+        ::-webkit-scrollbar-thumb {
+            background: var(--bg-panel);
+            border: 1px solid var(--border-dim);
+            border-radius: 3px;
+        }
+
+        ::-webkit-scrollbar-thumb:hover {
+            background: var(--cyan-dim);
+            border-color: var(--cyan);
+        }
+
+        body {
+            background: var(--bg-void);
+            color: var(--text-1);
+            font-family: 'Inter', sans-serif;
+            font-size: 13px;
+        }
+
+        body::before {
+            content: '';
+            position: fixed;
+            inset: 0;
+            background-image: linear-gradient(rgba(31, 213, 255, 0.025) 1px, transparent 1px), linear-gradient(90deg, rgba(31, 213, 255, 0.025) 1px, transparent 1px);
+            background-size: 40px 40px;
+            pointer-events: none;
+            z-index: 0;
+        }
+
+        .topnav {
+            height: var(--nav-h);
+            background: var(--bg-deep);
+            border-bottom: 1px solid var(--border);
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            padding: 0 24px;
+            position: sticky;
+            top: 0;
+            z-index: 200;
+            backdrop-filter: blur(12px);
+        }
+
+        .topnav-brand {
+            display: flex;
+            align-items: center;
+            gap: 8px;
+            font-family: 'JetBrains Mono', monospace;
+            font-weight: 700;
+            font-size: 14px;
+            color: var(--text-1);
+            text-decoration: none;
+        }
+
+        .topnav-brand i {
+            color: var(--cyan);
+        }
+
+        .page-wrap {
+            display: grid;
+            grid-template-columns: var(--sidebar-w) 1fr;
+            min-height: calc(100vh - var(--nav-h));
+            position: relative;
+            z-index: 1;
+        }
+
+        aside {
+            background: var(--bg-panel);
+            border-right: 1px solid var(--border-dim);
+            padding: 20px 0;
+            display: flex;
+            flex-direction: column;
+            gap: 2px;
+            position: sticky;
+            top: var(--nav-h);
+            height: calc(100vh - var(--nav-h));
+        }
+
+        .sidebar-label {
+            padding: 0 16px 8px;
+            font-family: 'JetBrains Mono', monospace;
+            font-size: 9px;
+            color: var(--text-3);
+            text-transform: uppercase;
+            letter-spacing: 0.1em;
+        }
+
+        .sidebar-item {
+            padding: 8px 16px;
+            color: var(--text-2);
+            text-decoration: none;
+            display: flex;
+            align-items: center;
+            gap: 10px;
+            font-size: 12px;
+            margin: 0 8px;
+            border-radius: 4px;
+            transition: all 0.2s;
+        }
+
+        .sidebar-item:hover {
+            background: var(--bg-hover);
+            color: var(--text-1);
+        }
+
+        .sidebar-item.active {
+            background: var(--cyan-dim);
+            color: var(--cyan);
+        }
+
+        main {
+            padding: 20px 24px;
+        }
+
+        .table-card {
+            background: var(--bg-card);
+            border: 1px solid var(--border-dim);
+            border-radius: 6px;
+            overflow: hidden;
+        }
+
+        .table-header {
+            padding: 12px 16px;
+            border-bottom: 1px solid var(--border-dim);
+            background: var(--bg-panel);
+        }
+
+        .table-header h2 {
+            font-family: 'JetBrains Mono', monospace;
+            font-size: 11px;
+            color: var(--text-2);
+            text-transform: uppercase;
+            letter-spacing: 0.1em;
+        }
+
+        table {
+            width: 100%;
+            border-collapse: collapse;
+        }
+
+        th {
+            text-align: left;
+            padding: 12px 16px;
+            background: rgba(0, 0, 0, 0.2);
+            color: var(--text-3);
+            font-family: 'JetBrains Mono', monospace;
+            font-size: 10px;
+            text-transform: uppercase;
+        }
+
+        td {
+            padding: 12px 16px;
+            border-bottom: 1px solid var(--border-dim);
+            font-size: 12px;
+        }
+
+        tr:hover {
+            background: var(--bg-hover);
+        }
+
+        .badge {
+            padding: 2px 6px;
+            border-radius: 3px;
+            font-size: 10px;
+            font-family: 'JetBrains Mono', monospace;
+            font-weight: 700;
+            text-transform: uppercase;
+            background: rgba(31, 213, 255, 0.1);
+            color: var(--cyan);
+            border: 1px solid rgba(31, 213, 255, 0.3);
+        }
+
+        .repo-link {
+            color: var(--cyan);
+            text-decoration: none;
+            font-family: 'JetBrains Mono', monospace;
+        }
+
+        .repo-link:hover {
+            text-decoration: underline;
+        }
+
+        .code-snippet {
+            font-family: 'JetBrains Mono', monospace;
+            color: var(--cyan);
+            background: rgba(31, 213, 255, 0.05);
+            padding: 2px 4px;
+            border-radius: 3px;
+        }
+
+        .btn-unmonitor {
+            background: rgba(255, 71, 87, 0.1);
+            color: var(--red);
+            border: 1px solid rgba(255, 71, 87, 0.3);
+            padding: 4px 10px;
+            border-radius: 4px;
+            font-size: 11px;
+            font-family: 'JetBrains Mono', monospace;
+            font-weight: 500;
+            cursor: pointer;
+            transition: all 0.15s;
+            text-decoration: none;
+            display: inline-flex;
+            align-items: center;
+            gap: 6px;
+        }
+
+        .btn-unmonitor:hover {
+            background: rgba(255, 71, 87, 0.2);
+            border-color: var(--red);
+            text-shadow: 0 0 5px rgba(255, 71, 87, 0.5);
+        }
+
+        .btn-scan-all {
+            background: var(--cyan-dim);
+            color: var(--cyan);
+            border: 1px solid var(--border);
+            padding: 4px 10px;
+            border-radius: 4px;
+            font-size: 10px;
+            font-family: 'JetBrains Mono', monospace;
+            font-weight: 600;
+            cursor: pointer;
+            transition: all 0.15s;
+            text-decoration: none;
+            display: inline-flex;
+            align-items: center;
+            gap: 6px;
+            letter-spacing: 0.05em;
+        }
+
+        .btn-scan-all:hover {
+            background: rgba(31, 213, 255, 0.25);
+            border-color: var(--cyan);
+            box-shadow: 0 0 10px rgba(31, 213, 255, 0.15);
+        }
+
+        .pagination {
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            gap: 4px;
+            margin-top: 24px;
+        }
+
+        .btn-page {
+            background: var(--bg-panel);
+            border: 1px solid var(--border-dim);
+            color: var(--text-2);
+            padding: 6px 12px;
+            border-radius: 4px;
+            text-decoration: none;
+            font-family: 'JetBrains Mono', monospace;
+            font-size: 11px;
+            transition: all 0.2s;
+            min-width: 32px;
+            text-align: center;
+        }
+
+        .btn-page:hover:not(.disabled) {
+            border-color: var(--cyan);
+            color: var(--cyan);
+            background: var(--cyan-dim);
+        }
+
+        .btn-page.active {
+            background: var(--cyan-dim);
+            color: var(--cyan);
+            border-color: var(--cyan);
+        }
+
+        .btn-page.disabled {
+            opacity: 0.3;
+            cursor: not-allowed;
+            pointer-events: none;
+        }
+
+        @media (max-width: 768px) {
+            .page-wrap {
+                grid-template-columns: 1fr;
+            }
+
+            aside {
+                display: none;
+            }
+        }
+    </style>
+</head>
+
+<body>
+    <nav class="topnav">
+        <a href="/" class="topnav-brand"><i class="fab fa-git-alt"></i> GITFAYE</a>
+    </nav>
+    <div class="page-wrap">
+        <aside>
+            <div class="sidebar-label">Navigation</div>
+            <a href="/defense" class="sidebar-item"><i class="fas fa-shield-alt"></i> Overview</a>
+            <a href="/monitored" class="sidebar-item active"><i class="fas fa-satellite-dish"></i> Monitored</a>
+            <a href="/detections" class="sidebar-item"><i class="fas fa-bug"></i> Detections</a>
+        </aside>
+        <main>
+            <div class="table-card">
+                <div class="table-header" style="display: flex; justify-content: space-between; align-items: center;">
+                    <h2>Monitored Repositories</h2>
+                    <a href="/scan-monitored" class="btn-scan-all">
+                        <i class="fas fa-shield-virus"></i> SCAN ALL
+                    </a>
+                </div>
+                <table>
+                    <thead>
+                        <tr>
+                            <th>REPOSITORY</th>
+                            <th>DEFAULT_BRANCH</th>
+                            <th>LAST CHECK</th>
+                            <th style="text-align: right;">ACTION</th>
+                        </tr>
+                    </thead>
+                    <tbody>
+                        <% if (monitoredRepos && monitoredRepos.length> 0) { %>
+                            <% monitoredRepos.forEach(m=> { %>
+                                <tr>
+                                    <td>
+                                        <a href="/<%= m.username %>/repository/<%= m.repoName %>" class="repo-link">
+                                            <%= m.username %>/<%= m.repoName %>
+                                        </a>
+                                    </td>
+                                    <td><span class="code-snippet">
+                                            <%= m.defaultBranch || "main" %>
+                                        </span></td>
+                                    <td
+                                        style="font-family: 'JetBrains Mono', monospace; font-size: 11px; color: var(--text-3);">
+                                        <%= m.lastChecked ? new Date(m.lastChecked).toLocaleString("en-US", { hour12:
+                                            false }) : "NEVER_CHECKED" %>
+                                    </td>
+                                    <td style="text-align: right;">
+                                        <a href="/<%= m.username %>/repository/<%= m.repoName %>/unmonitor"
+                                            class="btn-unmonitor">
+                                            <i class="fas fa-eye-slash"></i> REMOVE
+                                        </a>
+                                    </td>
+                                </tr>
+                                <% }) %>
+                                    <% } else { %>
+                                        <tr>
+                                            <td colspan="5"
+                                                style="text-align: center; color: var(--text-3); padding: 48px; font-family: 'JetBrains Mono', monospace;">
+                                                No Repositories Monitoring</td>
+                                        </tr>
+                                        <% } %>
+                    </tbody>
+                </table>
+            </div>
+
+            <% if (typeof totalPages !=="undefined" && totalPages> 1) { %>
+                <div class="pagination">
+                    <a href="?page=1" class="btn-page <%= page === 1 ? "disabled" : "" %>" title="First Page">
+                        <i class="fas fa-angle-double-left"></i>
+                    </a>
+                    <a href="?page=<%= page - 1 %>" class="btn-page <%= !hasPrev ? "disabled" : "" %>"
+                        title="Previous Page">
+                        <i class="fas fa-angle-left"></i>
+                    </a>
+
+                    <% var startPage = Math.max(1, page - 2)
+                       var endPage = Math.min(totalPages, startPage + 4)
+                       if (endPage - startPage < 4) startPage = Math.max(1, endPage - 4)
+                       for (var i = startPage; i <= endPage; i++) {
+                       if (i < 1) continue %>
+                        <a href="?page=<%= i %>" class="btn-page <%= i === page ? "active" : "" %>">
+                            <%= i %>
+                        </a>
+                        <% } %>
+
+                            <a href="?page=<%= page + 1 %>" class="btn-page <%= !hasNext ? "disabled" : "" %>"
+                                title="Next Page">
+                                <i class="fas fa-angle-right"></i>
+                            </a>
+                            <a href="?page=<%= totalPages %>"
+                                class="btn-page <%= page === totalPages ? "disabled" : "" %>" title="Last Page">
+                                <i class="fas fa-angle-double-right"></i>
+                            </a>
+                </div>
+                <% } %>
+        </main>
+    </div>
+</body>
+
+</html>

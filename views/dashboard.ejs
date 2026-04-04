@@ -1,0 +1,471 @@
+<!DOCTYPE html>
+<html lang="en">
+
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>
+        <%= user.login %> | GitFaye
+    </title>
+    <link rel="icon" href="assets/img/logo.png" type="image/png">
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.0/css/all.min.css">
+    <style>
+        :root {
+            --bg-canvas: #0d1117;
+            --bg-subtle: #161b22;
+            --bg-overlay: #1d2128;
+            --border-default: #30363d;
+            --text-primary: #e6edf3;
+            --text-secondary: #8b949e;
+            --accent-fg: #58a6ff;
+            --success-fg: #3fb950;
+            --danger-fg: #f85149;
+            --nav-h: 64px;
+        }
+
+        body {
+            background: var(--bg-canvas);
+            color: var(--text-primary);
+            font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", "Noto Sans", Helvetica, Arial, sans-serif;
+            margin: 0;
+            font-size: 14px;
+        }
+
+        a {
+            color: inherit;
+            text-decoration: none;
+        }
+
+        .topnav {
+            height: var(--nav-h);
+            background: #010409;
+            border-bottom: 1px solid var(--border-default);
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            padding: 0 32px;
+            position: sticky;
+            top: 0;
+            z-index: 200;
+        }
+
+        .topnav-brand {
+            display: flex;
+            align-items: center;
+            gap: 10px;
+            font-weight: 600;
+            font-size: 16px;
+        }
+
+        .topnav-brand i {
+            color: var(--accent-fg);
+        }
+
+        .page-wrap {
+            max-width: 1280px;
+            margin: 0 auto;
+            padding: 24px 32px;
+            display: grid;
+            grid-template-columns: 296px 1fr;
+            gap: 32px;
+        }
+
+        .sidebar-avatar {
+            width: 100%;
+            aspect-ratio: 1;
+            border-radius: 50%;
+            border: 1px solid var(--border-default);
+            overflow: hidden;
+            margin-bottom: 16px;
+        }
+
+        .sidebar-avatar img {
+            width: 100%;
+            height: 100%;
+            object-fit: cover;
+        }
+
+        .sidebar-name {
+            font-size: 24px;
+            font-weight: 600;
+            margin: 8px 0 0;
+        }
+
+        .sidebar-login {
+            font-size: 20px;
+            color: var(--text-secondary);
+            font-weight: 300;
+            margin: 0 0 16px;
+        }
+
+        .sidebar-bio {
+            font-size: 16px;
+            margin-bottom: 16px;
+        }
+
+        .sidebar-stats {
+            display: flex;
+            gap: 12px;
+            margin-bottom: 16px;
+            font-size: 14px;
+            color: var(--text-secondary);
+        }
+
+        .sidebar-stats span {
+            color: var(--text-primary);
+            font-weight: 600;
+        }
+
+        .sidebar-meta {
+            list-style: none;
+            padding: 0;
+            margin: 0 0 16px;
+            font-size: 14px;
+        }
+
+        .sidebar-meta li {
+            display: flex;
+            align-items: center;
+            gap: 8px;
+            margin-bottom: 4px;
+        }
+
+        .sidebar-divider {
+            border: none;
+            border-top: 1px solid var(--border-default);
+            margin: 16px 0;
+        }
+
+        .badge-plan {
+            font-size: 12px;
+            background: #232d38;
+            color: var(--accent-fg);
+            padding: 4px 8px;
+            border-radius: 6px;
+            font-weight: 600;
+        }
+
+        .badge-2fa {
+            font-size: 12px;
+            background: #1a3321;
+            color: var(--success-fg);
+            padding: 4px 8px;
+            border-radius: 6px;
+            font-weight: 600;
+        }
+
+        .main-tabs {
+            display: flex;
+            border-bottom: 1px solid var(--border-default);
+            margin-bottom: 24px;
+            gap: 8px;
+        }
+
+        .tab-item {
+            padding: 8px 16px;
+            font-size: 14px;
+            cursor: pointer;
+            border-bottom: 2px solid transparent;
+            display: flex;
+            align-items: center;
+            gap: 8px;
+        }
+
+        .tab-item.active {
+            border-bottom-color: #f78166;
+            font-weight: 600;
+        }
+
+        .tab-count {
+            background: #30363d;
+            padding: 2px 6px;
+            border-radius: 12px;
+            font-size: 12px;
+            color: var(--text-primary);
+        }
+
+        .section-title {
+            font-size: 16px;
+            font-weight: 600;
+            margin-bottom: 16px;
+        }
+
+        .account-grid {
+            display: grid;
+            gap: 8px;
+        }
+
+        .account-row {
+            display: flex;
+            justify-content: space-between;
+            padding: 10px 12px;
+            background: var(--bg-subtle);
+            border: 1px solid var(--border-default);
+            border-radius: 6px;
+            font-size: 13px;
+        }
+
+        .account-row .key {
+            color: var(--text-secondary);
+        }
+
+        .account-row .val {
+            font-weight: 500;
+        }
+
+        .account-row .val.green {
+            color: var(--success-fg);
+        }
+
+        .account-row .val.blue {
+            color: var(--accent-fg);
+        }
+
+        .stats-strip {
+            display: grid;
+            grid-template-columns: repeat(4, 1fr);
+            gap: 16px;
+            margin-bottom: 24px;
+        }
+
+        .stat-tile {
+            background: var(--bg-subtle);
+            border: 1px solid var(--border-default);
+            padding: 16px;
+            border-radius: 6px;
+            text-align: center;
+        }
+
+        .stat-tile .val {
+            font-size: 20px;
+            font-weight: 600;
+        }
+
+        .stat-tile .lbl {
+            font-size: 12px;
+            color: var(--text-secondary);
+        }
+
+        .contrib-box {
+            background: var(--bg-subtle);
+            border: 1px solid var(--border-default);
+            border-radius: 6px;
+            padding: 16px;
+            margin-bottom: 24px;
+        }
+
+        .contrib-grid {
+            display: grid;
+            grid-template-columns: repeat(53, 1fr);
+            gap: 3px;
+        }
+
+        .contrib-cell {
+            aspect-ratio: 1;
+            border-radius: 2px;
+            background: #21262d;
+        }
+
+        .contrib-cell.l1 {
+            background: #0e4429;
+        }
+
+        .contrib-cell.l2 {
+            background: #006d32;
+        }
+
+        .contrib-cell.l3 {
+            background: #26a641;
+        }
+
+        .contrib-cell.l4 {
+            background: #39d353;
+        }
+
+        @media (max-width: 900px) {
+            .page-wrap {
+                grid-template-columns: 1fr;
+            }
+
+            .stats-strip {
+                grid-template-columns: repeat(2, 1fr);
+            }
+
+            .contrib-grid {
+                grid-template-columns: repeat(26, 1fr);
+            }
+        }
+    </style>
+</head>
+
+<body>
+    <nav class="topnav">
+        <a href="/" class="topnav-brand"><i class="fab fa-git-alt"></i> GITFAYE</a>
+    </nav>
+
+    <div class="page-wrap">
+        <aside>
+            <div class="sidebar-avatar">
+                <img src="<%= user.avatar_url %>" alt="<%= user.login %>">
+            </div>
+            <% if (user.name) { %>
+                <h1 class="sidebar-name">
+                    <%= user.name %>
+                </h1>
+                <% } %>
+                    <p class="sidebar-login">
+                        <%= user.login %>
+                    </p>
+                    <% if (user.bio) { %>
+                        <p class="sidebar-bio">
+                            <%= user.bio %>
+                        </p>
+                        <% } %>
+
+                            <div class="sidebar-stats">
+                                <div><span>
+                                        <%= user.followers %>
+                                    </span> followers</div>
+                                <div><span>
+                                        <%= user.following %>
+                                    </span> following</div>
+                            </div>
+
+                            <ul class="sidebar-meta">
+                                <% if (user.company) { %>
+                                    <li><i class="fas fa-building"></i>
+                                        <%= user.company %>
+                                    </li>
+                                    <% } %>
+                                        <% if (user.location) { %>
+                                            <li><i class="fas fa-map-marker-alt"></i>
+                                                <%= user.location %>
+                                            </li>
+                                            <% } %>
+                                                <% if (isAdmin && user.email) { %>
+                                                    <li><i class="fas fa-envelope"></i>
+                                                        <%= user.email %>
+                                                    </li>
+                                                    <% } %>
+                            </ul>
+
+                            <hr class="sidebar-divider">
+
+                            <p class="sidebar-section-title"
+                                style="font-weight:600; font-size:12px; color:var(--text-secondary); text-transform:uppercase; margin-bottom:8px;">
+                                Plan & Security</p>
+                            <div style="display:flex; flex-direction:column; gap:6px;">
+                                <span class="badge-plan"><i class="fas fa-cube"></i> Plan: <%= (isAdmin && user.plan) ?
+                                        user.plan.name : 'N/A' %></span>
+                                <% if (isAdmin && user.two_factor_authentication) { %>
+                                    <span class="badge-2fa"><i class="fas fa-shield-alt"></i> 2FA Enabled</span>
+                                    <% } else if(isAdmin) { %>
+                                        <span class="badge-2fa" style="background:#311; color:var(--danger-fg);"><i
+                                                class="fas fa-shield-alt"></i> 2FA Off</span>
+                                        <% } %>
+                            </div>
+
+                            <hr class="sidebar-divider">
+                            <p style="font-size:12px; color:var(--text-secondary);">Disk Usage: <%= isAdmin ?
+                                    ((user.disk_usage / 1024).toFixed(1) + ' MB' ) : 'N/A' %>
+                            </p>
+        </aside>
+
+        <main>
+            <nav class="main-tabs">
+                <div class="tab-item active"><i class="fas fa-book-open"></i> Overview</div>
+
+                <a class="tab-item" href="/<%= user.login %>/repositories">
+                    <i class="fas fa-book"></i> Repositories <span class="tab-count">
+                        <%= user.public_repos %>
+                    </span>
+                </a>
+            </nav>
+
+            <p class="section-title">Account Information</p>
+            <div class="account-grid" style="margin-bottom: 24px;">
+                <div class="account-row"><span class="key">Username</span><span class="val blue">
+                        <%= user.login %>
+                    </span></div>
+                <div class="account-row"><span class="key">Display Name</span><span class="val">
+                        <%= user.name || 'N/A' %>
+                    </span></div>
+                <div class="account-row"><span class="key">Joined</span><span class="val">
+                        <%= new Date(user.created_at).toLocaleDateString() %>
+                    </span></div>
+                <div class="account-row"><span class="key">Email</span><span class="val">
+                        <%= isAdmin ? (user.email || 'None' ) : 'N/A' %>
+                    </span></div>
+                <div class="account-row"><span class="key">Location</span><span class="val">
+                        <%= user.location || 'N/A' %>
+                    </span></div>
+                <div class="account-row"><span class="key">2FA Status</span><span
+                        class="val <%= (isAdmin && user.two_factor_authentication) ? 'green' : '' %>">
+                        <%= isAdmin ? (user.two_factor_authentication ? 'Enabled' : 'Disabled' ) : 'N/A' %>
+                    </span></div>
+            </div>
+
+            <div class="stats-strip">
+                <div class="stat-tile">
+                    <div class="val">
+                        <%= user.public_repos %>
+                    </div>
+                    <div class="lbl">Repositories</div>
+                </div>
+                <div class="stat-tile">
+                    <div class="val">
+                        <%= user.public_gists %>
+                    </div>
+                    <div class="lbl">Gists</div>
+                </div>
+                <div class="stat-tile">
+                    <div class="val">
+                        <%= user.followers %>
+                    </div>
+                    <div class="lbl">Followers</div>
+                </div>
+                <div class="stat-tile">
+                    <div class="val">
+                        <%= user.following %>
+                    </div>
+                    <div class="lbl">Following</div>
+                </div>
+            </div>
+
+            <div class="contrib-box">
+                <div class="contrib-header" style="display:flex; justify-content:space-between; margin-bottom:12px;">
+                    <span style="color:var(--text-secondary);">
+                        <%= user.login %>'s contribution activity
+                    </span>
+                    <a href="<%= user.html_url %>" target="_blank" style="color:var(--accent-fg); font-size:12px;">View
+                        on GitHub &rarr;</a>
+                </div>
+                <div class="contrib-grid" id="contribGrid"></div>
+            </div>
+        </main>
+    </div>
+
+    <script>
+        // Variables
+        var grid = document.getElementById("contribGrid")
+        var seed = "<%= user.login %>".split("").reduce((a, c) => a + c.charCodeAt(0), 0)
+        var s = seed
+
+        // Functions
+        var rand = () => {
+            s = (s * 1664525 + 1013904223) & 0xffffffff
+            return (s >>> 0) / 0xffffffff
+        }
+
+        // Core
+        for (var i = 0; i < 53 * 7; i++) {
+            var cell = document.createElement("div")
+            var r = rand()
+            var lvl = r < 0.6 ? "" : r < 0.8 ? "l1" : r < 0.9 ? "l2" : r < 0.97 ? "l3" : "l4"
+            cell.className = "contrib-cell " + lvl
+            grid.appendChild(cell)
+        }
+    </script>
+</body>
+
+</html>
