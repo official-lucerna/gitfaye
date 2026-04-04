@@ -40,7 +40,7 @@ node index.js --update-plugins
 ```
 
 # 🔗 Related
-- [GitFaye Plugins:](https://github.com/firstdecree/gitfaye-plugins) A collection of GitFaye plugins. These plugins are for scanners, checkers and more.
+- [GitFaye Plugins](https://github.com/firstdecree/gitfaye-plugins): A collection of GitFaye plugins. These plugins are for scanners, checkers and more.
 
 # 🌟 Patrons
 <table border="1">
