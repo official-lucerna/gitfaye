@@ -12,7 +12,7 @@
 # ⚙️ Installations
 ## Github
 ```
-git clone https://github.com/firstdecree/gitfaye
+git clone https://github.com/official-lucerna/gitfaye
 ```
 
 ## NpmJS
